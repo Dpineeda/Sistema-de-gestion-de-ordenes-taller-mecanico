@@ -1,4 +1,3 @@
-
 package com.umg.edu.taller.dao;
 import com.umg.edu.taller.config.conexion_db;
 import com.umg.edu.taller.modelo.cliente;
@@ -10,14 +9,21 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class clienteDao implements CrudDao<cliente> {
+public class clienteDao implements CrudDao <cliente, String> {
 
-    @Override
     public boolean insertar(cliente cliente) {
         String sql = "INSERT INTO cliente(id_cliente, nombre, telefono, correo) VALUES (?, ?, ?, ?)";
 
         try (Connection con = conexion_db.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
+            try (PreparedStatement check = con.prepareStatement("SELECT 1 FROM cliente WHERE id_cliente = ?")) {
+                check.setString(1, cliente.getid_cliente());
+                try (ResultSet rs = check.executeQuery()) {
+                    if (rs.next()) {
+                        return false;
+                    }
+                }
+            }
             ps.setString(1, cliente.getid_cliente());
             ps.setString(2, cliente.getnombre());
             ps.setString(3, cliente.gettelefono());
@@ -50,12 +56,13 @@ public class clienteDao implements CrudDao<cliente> {
     }
 
     @Override
-    public boolean eliminar(int id) {
-        String sql = "DELETE FROM cliente WHERE id_cliente = ?";
+    public boolean eliminar (String id) {
+        String sql = "DELETE FROM cliente WHERE id_cliente = ? "
+                + "AND NOT EXISTS (SELECT 1 FROM vehiculo WHERE vehiculo.id_cliente = cliente.id_cliente)";
 
         try (Connection con = conexion_db.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, id);
+            ps.setString(1, id);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             System.err.println("Error al eliminar el cliente");
@@ -65,19 +72,19 @@ public class clienteDao implements CrudDao<cliente> {
     }
 
     @Override
-    public cliente buscarporid(int id) {
+    public cliente buscarporid(String id) {
         String sql = "SELECT id_cliente, nombre, telefono, correo FROM cliente WHERE id_cliente = ?";
 
         try (Connection con = conexion_db.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, id);
+            ps.setString(1, id);
 
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? mapearcliente(rs) : null;
             }
         } catch (SQLException e) {
             System.err.println("Error al buscar el cliente por ID");
-            System.err.println();
+            e.printStackTrace();
         }
         return null;
     }

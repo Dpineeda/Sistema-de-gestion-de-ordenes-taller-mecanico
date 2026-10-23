@@ -12,14 +12,24 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
-public class vehiculoDao implements CrudDao<vehiculo> {
+public class vehiculoDao implements CrudDao<vehiculo, Integer> {
 
     @Override
     public boolean insertar(vehiculo objeto) {
+        if (objeto == null || objeto.getCliente() == null || objeto.getPlaca() == null
+                || objeto.getPlaca().isBlank()) {
+            return false;
+        }
         String sql = "INSERT INTO vehiculo(id_vehiculo, placa, marca, modelo, anio, color, id_cliente) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection con = conexion_db.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
+            if (objeto.getCliente() == null
+                    || objeto.getCliente().getid_cliente() == null
+                    || placaExiste(con, objeto.getPlaca(), null)
+                    || !clienteExiste(con, objeto.getCliente().getid_cliente())) {
+                return false;
+            }
             ps.setInt(1, objeto.getId_vehiculo());
             ps.setString(2, objeto.getPlaca());
             ps.setString(3, objeto.getMarca());
@@ -42,10 +52,20 @@ public class vehiculoDao implements CrudDao<vehiculo> {
 
     @Override
     public boolean actualizar(vehiculo objeto) {
+        if (objeto == null || objeto.getCliente() == null || objeto.getPlaca() == null
+                || objeto.getPlaca().isBlank()) {
+            return false;
+        }
         String sql = "UPDATE vehiculo SET placa = ?, marca = ?, modelo = ?, anio = ?, color = ?, id_cliente = ? WHERE id_vehiculo = ?";
 
         try (Connection con = conexion_db.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
+            if (objeto.getCliente() == null
+                    || objeto.getCliente().getid_cliente() == null
+                    || placaExiste(con, objeto.getPlaca(), objeto.getId_vehiculo())
+                    || !clienteExiste(con, objeto.getCliente().getid_cliente())) {
+                return false;
+            }
             ps.setString(1, objeto.getPlaca());
             ps.setString(2, objeto.getMarca());
             ps.setString(3, objeto.getModelo());
@@ -67,8 +87,9 @@ public class vehiculoDao implements CrudDao<vehiculo> {
     }
 
     @Override
-    public boolean eliminar(int id) {
-        String sql = "DELETE FROM vehiculo WHERE id_vehiculo = ?";
+    public boolean eliminar(Integer id) {
+        String sql = "DELETE FROM vehiculo WHERE id_vehiculo = ? "
+                + "AND NOT EXISTS (SELECT 1 FROM orden WHERE orden.id_vehiculo = vehiculo.id_vehiculo)";
 
         try (Connection con = conexion_db.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -82,7 +103,7 @@ public class vehiculoDao implements CrudDao<vehiculo> {
     }
 
     @Override
-    public vehiculo buscarporid(int id) {
+    public vehiculo buscarporid(Integer id) {
         String sql = "SELECT id_vehiculo, placa, marca, modelo, anio, color, id_cliente FROM vehiculo WHERE id_vehiculo = ?";
 
         try (Connection con = conexion_db.conectar();
@@ -115,6 +136,41 @@ public class vehiculoDao implements CrudDao<vehiculo> {
             e.printStackTrace();
         }
         return vehiculos;
+    }
+
+    public List<com.umg.edu.taller.modelo.orden> listarHistorialOrdenes(int idVehiculo) {
+        return new ordenDao().listarPorVehiculo(idVehiculo);
+    }
+
+    public List<com.umg.edu.taller.modelo.orden> listarHistorialOrdenes(String placa) {
+        if (placa == null || placa.isBlank()) {
+            throw new IllegalArgumentException("La placa es obligatoria");
+        }
+        return new ordenDao().listarPorPlaca(placa);
+    }
+
+    private boolean placaExiste(Connection con, String placa, Integer idExcluido) throws SQLException {
+        String sql = idExcluido == null
+                ? "SELECT 1 FROM vehiculo WHERE placa = ? LIMIT 1"
+                : "SELECT 1 FROM vehiculo WHERE placa = ? AND id_vehiculo <> ? LIMIT 1";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, placa);
+            if (idExcluido != null) {
+                ps.setInt(2, idExcluido);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    private boolean clienteExiste(Connection con, String idCliente) throws SQLException {
+        try (PreparedStatement ps = con.prepareStatement("SELECT 1 FROM cliente WHERE id_cliente = ?")) {
+            ps.setString(1, idCliente);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
     }
 
     private vehiculo mapearVehiculo(ResultSet rs) throws SQLException {

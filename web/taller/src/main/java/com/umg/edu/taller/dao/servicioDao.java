@@ -10,10 +10,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class servicioDao implements CrudDao<servicio> {
+public class servicioDao implements CrudDao<servicio, Integer> {
 
     @Override
     public boolean insertar(servicio objeto) {
+        if (objeto == null || objeto.getdescripcion() == null || objeto.getdescripcion().isBlank()
+                || objeto.getcosto_manodeobra() == null || objeto.getcosto_manodeobra().signum() < 0) {
+            return false;
+        }
         String sql = "INSERT INTO servicio(id_servicio, descripcion, costo_manodeobra) VALUES (?, ?, ?)";
 
         try (Connection con = conexion_db.conectar();
@@ -32,6 +36,10 @@ public class servicioDao implements CrudDao<servicio> {
 
     @Override
     public boolean actualizar(servicio objeto) {
+        if (objeto == null || objeto.getdescripcion() == null || objeto.getdescripcion().isBlank()
+                || objeto.getcosto_manodeobra() == null || objeto.getcosto_manodeobra().signum() < 0) {
+            return false;
+        }
         String sql = "UPDATE servicio SET descripcion = ?, costo_manodeobra = ? WHERE id_servicio = ?";
 
         try (Connection con = conexion_db.conectar();
@@ -49,7 +57,7 @@ public class servicioDao implements CrudDao<servicio> {
     }
 
     @Override
-    public boolean eliminar(int id) {
+    public boolean eliminar(Integer id) {
         String sql = "DELETE FROM servicio WHERE id_servicio = ?";
 
         try (Connection con = conexion_db.conectar();
@@ -64,7 +72,7 @@ public class servicioDao implements CrudDao<servicio> {
     }
 
     @Override
-    public servicio buscarporid(int id) {
+    public servicio buscarporid(Integer id) {
         String sql = "SELECT id_servicio, descripcion, costo_manodeobra FROM servicio WHERE id_servicio = ?";
 
         try (Connection con = conexion_db.conectar();

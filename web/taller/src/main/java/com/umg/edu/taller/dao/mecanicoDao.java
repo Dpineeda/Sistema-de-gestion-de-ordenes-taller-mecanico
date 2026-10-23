@@ -10,12 +10,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class mecanicoDao implements CrudDao<mecanico> {
+public class mecanicoDao implements CrudDao<mecanico, Integer> {
 
     @Override
     public boolean insertar(mecanico objeto) {
-        String sql = "INSERT INTO mecanico (id_mecanico, nombre, telefono) VALUES (?, ?, ?)";
-
+        String sql = "INSERT INTO mecanico(id_mecanico, nombre, telefono) VALUES (?, ?, ?)";
         try (Connection con = conexion_db.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, objeto.getid_mecanico());
@@ -49,8 +48,9 @@ public class mecanicoDao implements CrudDao<mecanico> {
     }
 
     @Override
-    public boolean eliminar(int id) {
-        String sql = "DELETE FROM mecanico WHERE id_mecanico = ?";
+    public boolean eliminar(Integer id) {
+        String sql = "DELETE FROM mecanico WHERE id_mecanico = ? "
+                + "AND NOT EXISTS (SELECT 1 FROM orden WHERE orden.id_mecanico = mecanico.id_mecanico)";
 
         try (Connection con = conexion_db.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -64,7 +64,7 @@ public class mecanicoDao implements CrudDao<mecanico> {
     }
 
     @Override
-    public mecanico buscarporid(int id) {
+    public mecanico buscarporid(Integer id) {
         String sql = "SELECT id_mecanico, nombre, telefono FROM mecanico WHERE id_mecanico = ?";
 
         try (Connection con = conexion_db.conectar();
