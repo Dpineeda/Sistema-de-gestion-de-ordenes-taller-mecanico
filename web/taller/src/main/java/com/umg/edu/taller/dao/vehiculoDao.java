@@ -30,17 +30,17 @@ public class vehiculoDao implements CrudDao<vehiculo, Integer> {
                     || !clienteExiste(con, objeto.getCliente().getid_cliente())) {
                 return false;
             }
-            ps.setInt(1, objeto.getId_vehiculo());
-            ps.setString(2, objeto.getPlaca());
-            ps.setString(3, objeto.getMarca());
-            ps.setString(4, objeto.getModelo());
+                ps.setInt(1, objeto.getId_vehiculo());
+                ps.setString(2, objeto.getPlaca());
+                ps.setString(3, objeto.getMarca());
+                 ps.setString(4, objeto.getModelo());
             if (objeto.getAnio() == null) {
-                ps.setNull(5, Types.SMALLINT);
+                     ps.setNull(5, Types.SMALLINT);
             } else {
-                ps.setShort(5, objeto.getAnio());
+                          ps.setShort(5, objeto.getAnio());
             }
-            ps.setString(6, objeto.getColor());
-            ps.setString(7, objeto.getCliente().getid_cliente());
+                ps.setString(6, objeto.getColor());
+                ps.setString(7, objeto.getCliente().getid_cliente());
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -66,6 +66,7 @@ public class vehiculoDao implements CrudDao<vehiculo, Integer> {
                     || !clienteExiste(con, objeto.getCliente().getid_cliente())) {
                 return false;
             }
+
             ps.setString(1, objeto.getPlaca());
             ps.setString(2, objeto.getMarca());
             ps.setString(3, objeto.getModelo());
@@ -88,8 +89,7 @@ public class vehiculoDao implements CrudDao<vehiculo, Integer> {
 
     @Override
     public boolean eliminar(Integer id) {
-        String sql = "DELETE FROM vehiculo WHERE id_vehiculo = ? "
-                + "AND NOT EXISTS (SELECT 1 FROM orden WHERE orden.id_vehiculo = vehiculo.id_vehiculo)";
+        String sql = "DELETE FROM vehiculo WHERE id_vehiculo = ? AND NOT EXISTS (SELECT 1 FROM orden WHERE orden.id_vehiculo = vehiculo.id_vehiculo)";
 
         try (Connection con = conexion_db.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {

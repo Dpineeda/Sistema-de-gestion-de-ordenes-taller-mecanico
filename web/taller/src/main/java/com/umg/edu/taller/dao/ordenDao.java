@@ -10,7 +10,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -56,8 +55,7 @@ public class ordenDao implements CrudDao<orden, Integer> {
                 || objeto.getdescripcion_problema().isBlank()) {
             return false;
         }
-        String sql = "UPDATE orden SET id_vehiculo = ?, id_mecanico = ?, descripcion_problema = ? "
-                + "WHERE id_orden = ? AND estado IN (?, ?)";
+        String sql = "UPDATE orden SET id_vehiculo = ?, id_mecanico = ?, descripcion_problema = ? WHERE id_orden = ? AND estado IN (?, ?)";
 
         try (Connection con = conexion_db.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -99,8 +97,7 @@ public class ordenDao implements CrudDao<orden, Integer> {
 
     @Override
     public orden buscarporid(Integer id) {
-        String sql = "SELECT id_orden, id_vehiculo, id_mecanico, descripcion_problema, precio_total, estado "
-                + "FROM orden WHERE id_orden = ?";
+        String sql = "SELECT id_orden, id_vehiculo, id_mecanico, descripcion_problema, precio_total, estado FROM orden WHERE id_orden = ?";
 
         try (Connection con = conexion_db.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -134,8 +131,7 @@ public class ordenDao implements CrudDao<orden, Integer> {
     }
 
     public List<orden> listarPorVehiculo(int idVehiculo) {
-        String sql = "SELECT id_orden, id_vehiculo, id_mecanico, descripcion_problema, precio_total, estado "
-                + "FROM orden WHERE id_vehiculo = ? ORDER BY id_orden DESC";
+        String sql = "SELECT id_orden, id_vehiculo, id_mecanico, descripcion_problema, precio_total, estado FROM orden WHERE id_vehiculo = ? ORDER BY id_orden DESC";
         List<orden> ordenes = new ArrayList<>();
 
         try (Connection con = conexion_db.conectar();
@@ -158,8 +154,7 @@ public class ordenDao implements CrudDao<orden, Integer> {
                 && !orden.FINALIZADA.equals(estado) && !orden.CANCELADA.equals(estado)) {
             throw new IllegalArgumentException("Estado de orden no válido");
         }
-        String sql = "SELECT id_orden, id_vehiculo, id_mecanico, descripcion_problema, precio_total, estado "
-                + "FROM orden WHERE estado = ?";
+        String sql = "SELECT id_orden, id_vehiculo, id_mecanico, descripcion_problema, precio_total, estado FROM orden WHERE estado = ?";
         List<orden> ordenes = new ArrayList<>();
         try (Connection con = conexion_db.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -177,8 +172,7 @@ public class ordenDao implements CrudDao<orden, Integer> {
     }
 
     public List<orden> listarPorMecanico(int idMecanico) {
-        String sql = "SELECT id_orden, id_vehiculo, id_mecanico, descripcion_problema, precio_total, estado "
-                + "FROM orden WHERE id_mecanico = ?";
+        String sql = "SELECT id_orden, id_vehiculo, id_mecanico, descripcion_problema, precio_total, estado FROM orden WHERE id_mecanico = ?";
         List<orden> ordenes = new ArrayList<>();
         try (Connection con = conexion_db.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -296,16 +290,13 @@ public class ordenDao implements CrudDao<orden, Integer> {
                     }
                 }
 
-                try (PreparedStatement ps = con.prepareStatement(receiptSql, Statement.RETURN_GENERATED_KEYS)) {
+                try (PreparedStatement ps = con.prepareStatement(receiptSql)) {
                     ps.setInt(1, id);
                     ps.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
                     ps.setBigDecimal(3, totalRepuesto);
                     ps.setBigDecimal(4, total);
-                    ps.executeUpdate();
-                    try (ResultSet keys = ps.getGeneratedKeys()) {
-                        if (!keys.next()) {
-                            throw new SQLException("No se generó el identificador del comprobante");
-                        }
+                    if (ps.executeUpdate() != 1) {
+                        throw new SQLException("No se genero el comprobante");
                     }
                 }
                 con.commit();

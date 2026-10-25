@@ -57,8 +57,7 @@ public class clienteDao implements CrudDao <cliente, String> {
 
     @Override
     public boolean eliminar (String id) {
-        String sql = "DELETE FROM cliente WHERE id_cliente = ? "
-                + "AND NOT EXISTS (SELECT 1 FROM vehiculo WHERE vehiculo.id_cliente = cliente.id_cliente)";
+        String sql = "DELETE FROM cliente WHERE id_cliente = ? AND NOT EXISTS (SELECT 1 FROM vehiculo WHERE vehiculo.id_cliente = cliente.id_cliente)";
 
         try (Connection con = conexion_db.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {

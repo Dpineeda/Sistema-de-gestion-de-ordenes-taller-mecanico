@@ -92,6 +92,8 @@ public class repuestoDao implements CrudDao<repuesto, Integer> {
         return null;
     }
 
+
+    
     @Override
     public List<repuesto> listartodos() {
         String sql = "SELECT id_repuesto, nombre, descripcion, precio, existencia, minimo_en_stock FROM repuesto";
@@ -109,6 +111,8 @@ public class repuestoDao implements CrudDao<repuesto, Integer> {
         }
         return repuestos;
     }
+
+
 
     public boolean abastecer(int idRepuesto, int unidades) {
         if (unidades <= 0) {
@@ -130,18 +134,15 @@ public class repuestoDao implements CrudDao<repuesto, Integer> {
     }
 
     public List<repuesto> listarAgotados() {
-        return listarPorConsulta("SELECT id_repuesto, nombre, descripcion, precio, existencia, minimo_en_stock "
-                + "FROM repuesto WHERE existencia = 0");
+        return listarPorConsulta("SELECT id_repuesto, nombre, descripcion, precio, existencia, minimo_en_stock FROM repuesto WHERE existencia = 0");
     }
 
     public List<repuesto> listarBajoInventario() {
-        return listarPorConsulta("SELECT id_repuesto, nombre, descripcion, precio, existencia, minimo_en_stock "
-                + "FROM repuesto WHERE existencia <= minimo_en_stock");
+        return listarPorConsulta("SELECT id_repuesto, nombre, descripcion, precio, existencia, minimo_en_stock FROM repuesto WHERE existencia <= minimo_en_stock");
     }
 
     public List<repuesto> listarExistenciaHastaCinco() {
-        return listarPorConsulta("SELECT id_repuesto, nombre, descripcion, precio, existencia, minimo_en_stock "
-                + "FROM repuesto WHERE existencia <= 5");
+        return listarPorConsulta("SELECT id_repuesto, nombre, descripcion, precio, existencia, minimo_en_stock FROM repuesto WHERE existencia <= 5");
     }
 
     private List<repuesto> listarPorConsulta(String sql) {

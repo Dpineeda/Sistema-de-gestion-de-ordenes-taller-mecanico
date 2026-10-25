@@ -49,8 +49,7 @@ public class mecanicoDao implements CrudDao<mecanico, Integer> {
 
     @Override
     public boolean eliminar(Integer id) {
-        String sql = "DELETE FROM mecanico WHERE id_mecanico = ? "
-                + "AND NOT EXISTS (SELECT 1 FROM orden WHERE orden.id_mecanico = mecanico.id_mecanico)";
+        String sql = "DELETE FROM mecanico WHERE id_mecanico = ? AND NOT EXISTS (SELECT 1 FROM orden WHERE orden.id_mecanico = mecanico.id_mecanico)";
 
         try (Connection con = conexion_db.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {

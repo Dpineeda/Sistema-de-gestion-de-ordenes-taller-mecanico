@@ -95,8 +95,7 @@ public class comprobanteDao implements CrudDao<comprobante, Integer> {
         if (inicio == null || fin == null || !inicio.isBefore(fin)) {
             throw new IllegalArgumentException("El inicio debe ser anterior al fin del rango");
         }
-        String sql = "SELECT COALESCE(SUM(total), 0) AS ingresos FROM comprobante "
-                + "WHERE fecha_emision >= ? AND fecha_emision < ?";
+        String sql = "SELECT COALESCE(SUM(total), 0) AS ingresos FROM comprobante WHERE fecha_emision >= ? AND fecha_emision < ?";
         try (Connection con = conexion_db.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setTimestamp(1, Timestamp.valueOf(inicio));

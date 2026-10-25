@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gestión de vehículos</title>
+</head>
+<body>
+    <h1>Registro de vehículos</h1>
+
+    <p th:if="${mensaje}" th:text="${mensaje}" role="status"></p>
+    <p th:if="${error}" th:text="${error}" role="alert"></p>
+
+    <form th:action="@{/vehiculos/guardar}" th:object="${vehiculo}" method="post">
+        <label for="id_vehiculo">ID del vehiculo</label>
+        <input id="id_vehiculo" type="text" th:field="*{id_vehiculo}" required>
+
+        <label for="placa">Numero de placa</label>
+        <input id="placa" type="text" th:field="*{placa}" required>
+
+        <label for="marca">Marca del vehículo</label>
+        <input id="marca" type="text" th:field="*{marca}" required>
+
+        <label for="modelo">Modelo del vehículo</label>
+        <input id="modelo" type="text" th:field="*{modelo}" required>
+
+        <label for="anio">Año del vehículo</label>
+        <input id="anio" type="number" th:field="*{anio}">
+
+        <label for="color">Color</label>
+        <input id="color" type="text" th:field="*{color}">
+
+        <label for="idCliente">Cliente</label>
+        <select id="idCliente" name="idCliente" required>
+            <option value="">Seleccione un cliente</option>
+            <option th:each="cliente : ${clientes}"
+                    th:value="${cliente.id_cliente}"
+                    th:text="${cliente.nombre}"
+                    th:selected="${vehiculo.cliente != null and cliente.id_cliente == vehiculo.cliente.id_cliente}">
+            </option>
+        </select>
+
+        <button type="submit">Guardar</button>
+    </form>
+
+    <h2>Vehículos registrados</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID del vehículo</th>
+                <th>Número de placa</th>
+                <th>Marca</th>
+                <th>Modelo</th>
+                <th>Año</th>
+                <th>Color</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="vehiculo : ${vehiculos}">
+                <td th:text="${vehiculo.id_vehiculo}"></td>
+                <td th:text="${vehiculo.placa}"></td>
+                <td th:text="${vehiculo.marca}"></td>
+                <td th:text="${vehiculo.modelo}"></td>
+                <td th:text="${vehiculo.anio}"></td>
+                <td th:text="${vehiculo.color}"></td>
+
+                <td>
+                    <a th:href="@{/vehiculos/editar/{id}(id=${vehiculo.id_vehiculo})}">Editar</a>
+                    <form th:action="@{/vehiculos/eliminar/{id}(id=${vehiculo.id_vehiculo})}" method="post">
+                        <button type="submit">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(vehiculos)}">
+                <td colspan="7">No hay vehículos registrados.</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

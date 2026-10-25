@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gestión de clientes</title>
+</head>
+<body>
+    <h1>Registro de clientes</h1>
+
+    <p th:if="${mensaje}" th:text="${mensaje}" role="status"></p>
+    <p th:if="${error}" th:text="${error}" role="alert"></p>
+
+    <form th:action="@{/clientes/guardar}" th:object="${cliente}" method="post">
+        <label for="id_cliente">ID del cliente</label>
+        <input id="id_cliente" type="text" th:field="*{id_cliente}" required>
+
+        <label for="nombre">Nombre</label>
+        <input id="nombre" type="text" th:field="*{nombre}" required>
+
+        <label for="telefono">Teléfono</label>
+        <input id="telefono" type="text" th:field="*{telefono}" required>
+
+        <label for="correo">Correo</label>
+        <input id="correo" type="email" th:field="*{correo}" required>
+
+        <button type="submit">Guardar</button>
+    </form>
+
+    <h2>Clientes registrados</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID del cliente</th>
+                <th>Nombre</th>
+                <th>Teléfono</th>
+                <th>Correo</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="c : ${clientes}">
+                <td th:text="${c.id_cliente}"></td>
+                <td th:text="${c.nombre}"></td>
+                <td th:text="${c.telefono}"></td>
+                <td th:text="${c.correo}"></td>
+                <td>
+                    <a th:href="@{/clientes/editar/{id}(id=${c.id_cliente})}">Editar</a>
+                    <form th:action="@{/clientes/eliminar/{id}(id=${c.id_cliente})}" method="post">
+                        <button type="submit">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(clientes)}">
+                <td colspan="5">No hay clientes registrados.</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

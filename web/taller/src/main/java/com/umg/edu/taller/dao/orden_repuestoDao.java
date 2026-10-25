@@ -19,8 +19,7 @@ public class orden_repuestoDao implements CrudDao<orden_repuesto, Integer> {
         if (!datosValidos(objeto)) {
             return false;
         }
-        String sql = "INSERT INTO orden_repuesto(id_orden_repuesto, id_orden, id_repuesto, cantidad, precio_unidad) "
-                + "VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO orden_repuesto(id_orden_repuesto, id_orden, id_repuesto, cantidad, precio_unidad) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection con = conexion_db.conectar()) {
             con.setAutoCommit(false);
@@ -63,10 +62,8 @@ public class orden_repuestoDao implements CrudDao<orden_repuesto, Integer> {
         if (!datosValidos(objeto) || objeto.getOrden() == null || objeto.getRepuesto() == null) {
             return false;
         }
-        String selectSql = "SELECT id_orden, id_repuesto, cantidad FROM orden_repuesto "
-                + "WHERE id_orden_repuesto = ? FOR UPDATE";
-        String updateSql = "UPDATE orden_repuesto SET id_repuesto = ?, cantidad = ?, precio_unidad = ? "
-                + "WHERE id_orden_repuesto = ?";
+        String selectSql = "SELECT id_orden, id_repuesto, cantidad FROM orden_repuesto WHERE id_orden_repuesto = ? FOR UPDATE";
+        String updateSql = "UPDATE orden_repuesto SET id_repuesto = ?, cantidad = ?, precio_unidad = ? WHERE id_orden_repuesto = ?";
 
         try (Connection con = conexion_db.conectar()) {
             con.setAutoCommit(false);
@@ -142,8 +139,7 @@ public class orden_repuestoDao implements CrudDao<orden_repuesto, Integer> {
     @Override
     public boolean eliminar(Integer id) {
         String orderSql = "SELECT id_orden FROM orden_repuesto WHERE id_orden_repuesto = ?";
-        String allocationSql = "SELECT id_repuesto, cantidad FROM orden_repuesto "
-                + "WHERE id_orden_repuesto = ? FOR UPDATE";
+        String allocationSql = "SELECT id_repuesto, cantidad FROM orden_repuesto WHERE id_orden_repuesto = ? FOR UPDATE";
         String deleteSql = "DELETE FROM orden_repuesto WHERE id_orden_repuesto = ?";
 
         try (Connection con = conexion_db.conectar()) {
@@ -206,8 +202,7 @@ public class orden_repuestoDao implements CrudDao<orden_repuesto, Integer> {
 
     @Override
     public orden_repuesto buscarporid(Integer id) {
-        String sql = "SELECT id_orden_repuesto, id_orden, id_repuesto, cantidad, precio_unidad "
-                + "FROM orden_repuesto WHERE id_orden_repuesto = ?";
+        String sql = "SELECT id_orden_repuesto, id_orden, id_repuesto, cantidad, precio_unidad FROM orden_repuesto WHERE id_orden_repuesto = ?";
         try (Connection con = conexion_db.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
