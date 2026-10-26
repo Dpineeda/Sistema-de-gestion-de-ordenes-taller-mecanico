@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Reporte de órdenes</title>
+</head>
+<body>
+    <h1>Reporte de órdenes</h1>
+
+    <p th:if="${mensaje}" th:text="${mensaje}" role="status"></p>
+    <p th:if="${error}" th:text="${error}" role="alert"></p>
+    <p th:if="${estado}" th:text="${'Estado: ' + estado}"></p>
+    <p th:if="${mecanico}" th:text="${'Mecánico: ' + mecanico.nombre}"></p>
+
+    <h2>Consultar orden por estado</h2>
+    <form th:action="@{/ordenes/reporte}" method="get">
+        <label for="estado">Estado de la orden</label>
+        <select id="estado" name="estado" required>
+            <option value="">Seleccione un estado</option>
+            <option value="PENDIENTE" th:selected="${estado == 'PENDIENTE'}">Pendiente</option>
+            <option value="EN PROCESO" th:selected="${estado == 'EN PROCESO'}">En proceso</option>
+            <option value="FINALIZADA" th:selected="${estado == 'FINALIZADA'}">Finalizada</option>
+            <option value="CANCELADA" th:selected="${estado == 'CANCELADA'}">Cancelada</option>
+        </select>
+        <button type="submit">Consultar por estado</button>
+    </form>
+
+    <h2>Consultar por mecánico</h2>
+    <form th:action="@{/ordenes/reporte}" method="get">
+        <label for="idMecanico">Mecánico</label>
+        <select id="idMecanico" name="idMecanico" required>
+            <option value="">Seleccione un mecánico</option>
+            <option th:each="opcion : ${mecanicos}"
+                    th:value="${opcion.id_mecanico}"
+                    th:text="${opcion.nombre}"
+                    th:selected="${mecanico != null and mecanico.id_mecanico == opcion.id_mecanico}">
+            </option>
+        </select>
+        <button type="submit">Consultar por mecánico</button>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID de la orden</th>
+                <th>Vehículo</th>
+                <th>Mecánico</th>
+                <th>Problema</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="orden : ${ordenes}">
+                <td th:text="${orden.id_orden}"></td>
+                <td th:text="${orden.vehiculo != null ? orden.vehiculo.placa : ''}"></td>
+                <td th:text="${orden.mecanico != null ? orden.mecanico.nombre : ''}"></td>
+                <td th:text="${orden.descripcion_problema}"></td>
+                <td th:text="${orden.estado}"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(ordenes)}">
+                <td colspan="5">No hay órdenes para mostrar.</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

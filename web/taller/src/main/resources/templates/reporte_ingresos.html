@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Reporte de ingresos</title>
+</head>
+<body>
+    <h1>Reporte de ingresos</h1>
+
+    <p th:if="${mensaje}" th:text="${mensaje}" role="status"></p>
+    <p th:if="${error}" th:text="${error}" role="alert"></p>
+    <p th:if="${inicio}" th:text="${'Desde: ' + inicio}"></p>
+    <p th:if="${fin}" th:text="${'Hasta: ' + fin}"></p>
+    <p th:if="${ingresos != null}" th:text="${'Ingresos totales: ' + ingresos}"></p>
+
+    <h2>Órdenes del periodo</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID de la orden</th>
+                <th>Vehículo</th>
+                <th>Mecánico</th>
+                <th>Problema</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="orden : ${ordenes}">
+                <td th:text="${orden.id_orden}"></td>
+                <td th:text="${orden.vehiculo != null ? orden.vehiculo.placa : ''}"></td>
+                <td th:text="${orden.mecanico != null ? orden.mecanico.nombre : ''}"></td>
+                <td th:text="${orden.descripcion_problema}"></td>
+                <td th:text="${orden.estado}"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(ordenes)}">
+                <td colspan="5">No hay órdenes para mostrar en el periodo.</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

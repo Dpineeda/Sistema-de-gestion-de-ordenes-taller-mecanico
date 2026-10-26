@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Comprobantes</title>
+</head>
+<body>
+    <h1>Comprobantes emitidos</h1>
+
+    <p th:if="${mensaje}" th:text="${mensaje}" role="status"></p>
+    <p th:if="${error}" th:text="${error}" role="alert"></p>
+
+        <form th:action="@{/comprobantes/reportes/ingresos}" method="get">
+            <label for="inicio">Desde</label>
+            <input id="inicio" name="inicio" type="datetime-local" th:value="${inicio}" required>
+
+        <label for="fin">Hasta</label>
+        <input id="fin" name="fin" type="datetime-local" th:value="${fin}" required>
+
+        <button type="submit">Consultar ingresos</button>
+    </form>
+
+    <p th:if="${comprobante}">
+        Comprobante consultado:
+        <span th:text="${comprobante.id_comprobante}"></span>
+    </p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID del comprobante</th>
+                <th>Fecha de emisión</th>
+                <th>ID de la orden</th>
+                <th>Total de repuestos</th>
+                <th>Total</th>
+                <th>Detalle</th>
+            </tr>
+        </thead>
+             <tbody>
+            <tr th:if="${comprobante}">
+                <td th:text="${comprobante.id_comprobante}"></td>
+                <td th:text="${comprobante.fecha_emision}"></td>
+                <td th:text="${comprobante.orden != null ? comprobante.orden.id_orden : ''}"></td>
+                <td th:text="${comprobante.total_repuesto}"></td>
+                <td th:text="${comprobante.total}"></td>
+                <td th:text="${comprobante.id_comprobante}"></td>
+            </tr>
+            
+            <tr th:each="comprobante : ${comprobantes}">
+                <td th:text="${comprobante.id_comprobante}"></td>
+                <td th:text="${comprobante.fecha_emision}"></td>
+                <td th:text="${comprobante.orden != null ? comprobante.orden.id_orden : ''}"></td>
+                <td th:text="${comprobante.total_repuesto}"></td>
+                <td th:text="${comprobante.total}"></td>
+                <td><a th:href="@{/comprobantes/{id}(id=${comprobante.id_comprobante})}">Consultar</a></td>
+            </tr>
+            <tr th:if="${comprobante == null and #lists.isEmpty(comprobantes)}">
+                <td colspan="6">No hay comprobantes emitidos.</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Reporte de repuestos</title>
+</head>
+<body>
+    <h1>Repuestos con existencia hasta cinco</h1>
+
+    <p th:if="${mensaje}" th:text="${mensaje}" role="status"></p>
+    <p th:if="${error}" th:text="${error}" role="alert"></p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID del repuesto</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>Existencia</th>
+                <th>Mínimo en stock</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="repuesto : ${repuestos}">
+                <td th:text="${repuesto.id_repuesto}"></td>
+                <td th:text="${repuesto.nombre}"></td>
+                <td th:text="${repuesto.descripcion}"></td>
+                <td th:text="${repuesto.precio}"></td>
+                <td th:text="${repuesto.existencia}"></td>
+                <td th:text="${repuesto.minimo_en_stock}"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(repuestos)}">
+                <td colspan="6">No hay repuestos con existencia</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

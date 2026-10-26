@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gestión de mecánicos</title>
+</head>
+<body>
+    <h1>Registro de mecánicos</h1>
+
+    <p th:if="${mensaje}" th:text="${mensaje}" role="status"></p>
+    <p th:if="${error}" th:text="${error}" role="alert"></p>
+
+    <form th:action="@{/mecanicos/guardar}" method="post">
+        <label for="id_mecanico">ID del mecánico</label>
+        <input id="id_mecanico" name="id_mecanico" type="number" th:value="${mecanico != null ? mecanico.id_mecanico : ''}" required>
+
+        <label for="nombre">Nombre</label>
+        <input id="nombre" name="nombre" type="text" th:value="${mecanico != null ? mecanico.nombre : ''}" required>
+
+        <label for="telefono">Teléfono</label>
+        <input id="telefono" name="telefono" type="text" th:value="${mecanico != null ? mecanico.telefono : ''}" required>
+
+        <button type="submit">Guardar</button>
+    </form>
+
+    <h2>Mecánicos registrados</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID del mecánico</th>
+                <th>Nombre</th>
+                <th>Teléfono</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="mecanico : ${mecanicos}">
+                <td th:text="${mecanico.id_mecanico}"></td>
+                <td th:text="${mecanico.nombre}"></td>
+                <td th:text="${mecanico.telefono}"></td>
+                <td>
+                    <a th:href="@{/mecanicos/editar/{id}(id=${mecanico.id_mecanico})}">Editar</a>
+                    <form th:action="@{/mecanicos/eliminar/{id}(id=${mecanico.id_mecanico})}" method="post">
+                        <button type="submit">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(mecanicos)}">
+                <td colspan="4">No hay mecánicos registrados.</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

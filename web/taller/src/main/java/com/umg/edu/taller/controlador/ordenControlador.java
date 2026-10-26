@@ -6,6 +6,7 @@ import com.umg.edu.taller.dao.vehiculoDao;
 import com.umg.edu.taller.modelo.mecanico;
 import com.umg.edu.taller.modelo.orden;
 import com.umg.edu.taller.modelo.vehiculo;
+import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +28,38 @@ public class ordenControlador {
         model.addAttribute("ordenes", ordenDao.listartodos());
         agregarOpciones(model);
         return "orden";
+    }
+
+    @GetMapping("/reporte")
+    public String reporte(@RequestParam(required = false) String estado,
+                          @RequestParam(required = false) Integer idMecanico,
+                          Model model) {
+        model.addAttribute("mecanicos", mecanicoDao.listartodos());
+        model.addAttribute("ordenes", List.of());
+
+        if (estado != null && idMecanico != null) {
+            model.addAttribute("error", "Seleccione un solo criterio para consultar el reporte");
+            return "reporte_ordenes";
+        }
+
+        if (estado != null && !estado.isBlank()) {
+            try {
+                model.addAttribute("estado", estado);
+                model.addAttribute("ordenes", ordenDao.listarPorEstado(estado));
+            } catch (IllegalArgumentException e) {
+                model.addAttribute("error", e.getMessage());
+            }
+        } else if (idMecanico != null) {
+            mecanico mecanico = mecanicoDao.buscarporid(idMecanico);
+            if (mecanico == null) {
+                model.addAttribute("error", "No se encontró el mecánico con ID " + idMecanico);
+            } else {
+                model.addAttribute("mecanico", mecanico);
+                model.addAttribute("ordenes", ordenDao.listarPorMecanico(idMecanico));
+            }
+        }
+
+        return "reporte_ordenes";
     }
 
     @GetMapping("/editar/{id}")

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Servicios de órdenes</title>
+</head>
+<body>
+    <h1>Asignación de servicios a órdenes</h1>
+
+    <p th:if="${mensaje}" th:text="${mensaje}" role="status"></p>
+    <p th:if="${error}" th:text="${error}" role="alert"></p>
+    <p th:if="${orden}" th:text="${'Orden seleccionada: ' + orden.id_orden}"></p>
+
+    <form th:action="@{/orden-servicios/guardar}" method="post">
+        <label for="idOrdenServicio">ID de la asignación</label>
+        <input id="idOrdenServicio" name="idOrdenServicio" type="number" required>
+
+        <label for="idOrden">Orden</label>
+        <select id="idOrden" name="idOrden" required>
+            <option value="">Seleccione una orden</option>
+            <option th:each="opcion : ${ordenes}"
+                    th:value="${opcion.id_orden}"
+                    th:text="${'Orden ' + opcion.id_orden + ' - ' + opcion.estado}"
+                    th:selected="${orden != null and orden.id_orden == opcion.id_orden}">
+            </option>
+        </select>
+
+        <label for="idServicio">Servicio</label>
+        <select id="idServicio" name="idServicio" required>
+            <option value="">Seleccione un servicio</option>
+            <option th:each="servicio : ${servicios}"
+                    th:value="${servicio.id_servicio}"
+                    th:text="${servicio.descripcion + ' - ' + servicio.costo_manodeobra}">
+            </option>
+        </select>
+
+        <button type="submit">Asignar servicio</button>
+    </form>
+
+    <h2>Servicios asignados</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID de la asignación</th>
+                <th>Orden</th>
+                <th>Servicio</th>
+                <th>Costo</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="asignacion : ${asignaciones}">
+                <td th:text="${asignacion.id_orden_servicio}"></td>
+                <td th:text="${asignacion.orden != null ? asignacion.orden.id_orden : ''}"></td>
+                <td th:text="${asignacion.servicio != null ? asignacion.servicio.descripcion : ''}"></td>
+                <td th:text="${asignacion.costo}"></td>
+                <td>
+                    <form th:action="@{/orden-servicios/eliminar/{id}(id=${asignacion.id_orden_servicio})}" method="post">
+                        <button type="submit">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(asignaciones)}">
+                <td colspan="5">No hay servicios asignados.</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

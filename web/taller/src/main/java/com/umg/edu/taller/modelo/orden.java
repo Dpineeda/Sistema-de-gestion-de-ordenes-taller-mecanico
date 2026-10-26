@@ -34,7 +34,15 @@ public class orden {
 
     }
 
+    public int getId_orden() {
+        return id_orden;
+    }
+
     public void setid_orden(int id_orden) {
+        this.id_orden = id_orden;
+    }
+
+    public void setId_orden(int id_orden) {
         this.id_orden = id_orden;
     }
 
@@ -42,7 +50,15 @@ public class orden {
         return vehiculo;
     }
  
+    public vehiculo getVehiculo() {
+        return vehiculo;
+    }
+
     public void setvehiculo(vehiculo vehiculo) {
+        this.vehiculo = vehiculo;
+    }
+
+    public void setVehiculo(vehiculo vehiculo) {
         this.vehiculo = vehiculo;
     }
 
@@ -51,7 +67,15 @@ public class orden {
 
     }
 
+    public mecanico getMecanico() {
+        return mecanico;
+    }
+
     public void setmecanico(mecanico mecanico) {
+        this.mecanico = mecanico;
+    }
+
+    public void setMecanico(mecanico mecanico) {
         this.mecanico = mecanico;
     }
 
@@ -59,7 +83,15 @@ public class orden {
         return  descripcion_problema;
     }
 
+    public String getDescripcion_problema() {
+        return descripcion_problema;
+    }
+
     public void setdescripcion_problema(String descripcion_problema) {
+        this.descripcion_problema = descripcion_problema;
+    }
+
+    public void setDescripcion_problema(String descripcion_problema) {
         this.descripcion_problema = descripcion_problema;
     }
 

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Repuestos de órdenes</title>
+</head>
+<body>
+    <h1>Asignación de repuestos a órdenes</h1>
+
+    <p th:if="${mensaje}" th:text="${mensaje}" role="status"></p>
+    <p th:if="${error}" th:text="${error}" role="alert"></p>
+    <p th:if="${orden}" th:text="${'Orden seleccionada: ' + orden.id_orden}"></p>
+
+    <form th:action="@{/orden-repuestos/guardar}" method="post">
+        <label for="idOrdenRepuesto">ID de la asignación</label>
+        <input id="idOrdenRepuesto" name="idOrdenRepuesto" type="number" required>
+
+        <label for="idOrden">Orden</label>
+        <select id="idOrden" name="idOrden" required>
+            <option value="">Seleccione una orden</option>
+            <option th:each="opcion : ${ordenes}"
+                    th:value="${opcion.id_orden}"
+                    th:text="${'Orden ' + opcion.id_orden + ' - ' + opcion.estado}"
+                    th:selected="${orden != null and orden.id_orden == opcion.id_orden}">
+            </option>
+        </select>
+
+        <label for="idRepuesto">Repuesto</label>
+        <select id="idRepuesto" name="idRepuesto" required>
+            <option value="">Seleccione un repuesto</option>
+            <option th:each="repuesto : ${repuestos}"
+                    th:value="${repuesto.id_repuesto}"
+                    th:text="${repuesto.nombre + ' - Existencia: ' + repuesto.existencia}">
+            </option>
+        </select>
+
+        <label for="cantidad">Cantidad</label>
+        <input id="cantidad" name="cantidad" type="number" min="1" required>
+
+        <button type="submit">Asignar repuesto</button>
+    </form>
+
+    <h2>Repuestos asignados</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID de la asignación</th>
+                <th>Orden</th>
+                <th>Repuesto</th>
+                <th>Cantidad</th>
+                <th>Precio por unidad</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="asignacion : ${asignaciones}">
+                <td th:text="${asignacion.id_orden_repuesto}"></td>
+                <td th:text="${asignacion.orden != null ? asignacion.orden.id_orden : ''}"></td>
+                <td th:text="${asignacion.repuesto != null ? asignacion.repuesto.nombre : ''}"></td>
+                <td th:text="${asignacion.cantidad}"></td>
+                <td th:text="${asignacion.precio_unidad}"></td>
+                <td>
+                    <form th:action="@{/orden-repuestos/eliminar/{id}(id=${asignacion.id_orden_repuesto})}" method="post">
+                        <button type="submit">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(asignaciones)}">
+                <td colspan="6">No hay repuestos asignados.</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

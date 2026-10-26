@@ -4,6 +4,7 @@ import com.umg.edu.taller.dao.clienteDao;
 import com.umg.edu.taller.dao.vehiculoDao;
 import com.umg.edu.taller.modelo.cliente;
 import com.umg.edu.taller.modelo.vehiculo;
+import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -85,8 +86,14 @@ public class vehiculoControlador {
     }
 
     @GetMapping("/historial")
-    public String historialPorPlaca(@RequestParam String placa, Model model,
+    public String historialPorPlaca(@RequestParam(required = false) String placa, Model model,
                                     RedirectAttributes redirectAttributes) {
+        if (placa == null || placa.isBlank()) {
+            model.addAttribute("placa", "");
+            model.addAttribute("ordenes", List.of());
+            return "historial_vehiculo";
+        }
+
         try {
             model.addAttribute("placa", placa);
             model.addAttribute("ordenes", vehiculoDao.listarHistorialOrdenes(placa));

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Historial del vehículo</title>
+</head>
+<body>
+    <h1>Historial del vehículo</h1>
+
+    <p th:if="${mensaje}" th:text="${mensaje}" role="status"></p>
+    <p th:if="${error}" th:text="${error}" role="alert"></p>
+
+    <p th:if="${#strings.isEmpty(placa)}">Escribe la placa del vehículo para consultar las órdenes previas.</p>
+
+    <form th:action="@{/vehiculos/historial}" method="get">
+        <label for="placa">Número de placa</label>
+        <input id="placa" name="placa" type="text" th:value="${placa != null ? placa : (vehiculo != null ? vehiculo.placa : '')}" required>
+        <button type="submit">Consultar historial</button>
+    </form>
+
+    <p th:if="${vehiculo}" th:text="${'Vehículo: ' + vehiculo.placa + ' - ' + vehiculo.marca + ' ' + vehiculo.modelo}"></p>
+
+    <h2 th:if="${!#strings.isEmpty(placa)}" th:text="${'Historial de órdenes: ' + placa}"></h2>
+    <table th:if="${!#strings.isEmpty(placa)}">
+        <thead>
+            <tr>
+                <th>ID de la orden</th>
+                <th>Problema</th>
+                <th>Mecánico</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="orden : ${ordenes}">
+                <td th:text="${orden.id_orden}"></td>
+                <td th:text="${orden.descripcion_problema}"></td>
+                <td th:text="${orden.mecanico != null ? orden.mecanico.nombre : ''}"></td>
+                <td th:text="${orden.estado}"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(ordenes)}">
+                <td colspan="4">No se encontraron órdenes para esta placa.</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

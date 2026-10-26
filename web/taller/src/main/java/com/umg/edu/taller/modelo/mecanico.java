@@ -16,7 +16,15 @@ public int getid_mecanico() {
     return id_mecanico;
 }
 
+public int getId_mecanico() {
+    return id_mecanico;
+}
+
 public void setid_mecanico (int id_mecanico) {
+    this.id_mecanico = id_mecanico;
+}
+
+public void setId_mecanico(int id_mecanico) {
     this.id_mecanico = id_mecanico;
 }
 
@@ -24,7 +32,15 @@ public String getnombre() {
     return nombre;
 }
 
+public String getNombre() {
+    return nombre;
+}
+
 public void setnombre(String nombre) {
+    this.nombre = nombre;
+}
+
+public void setNombre(String nombre) {
     this.nombre = nombre;
 }
 
@@ -33,7 +49,15 @@ public String gettelefono () {
 
 }
 
+public String getTelefono() {
+    return telefono;
+}
+
 public void settelefono (String telefono) {
+    this.telefono = telefono;
+}
+
+public void setTelefono(String telefono) {
     this.telefono = telefono;
 }
 

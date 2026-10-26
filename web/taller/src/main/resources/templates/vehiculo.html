@@ -17,7 +17,7 @@
 
         <label for="placa">Numero de placa</label>
         <input id="placa" type="text" th:field="*{placa}" required>
-
+ 
         <label for="marca">Marca del vehículo</label>
         <input id="marca" type="text" th:field="*{marca}" required>
 
@@ -32,6 +32,7 @@
 
         <label for="idCliente">Cliente</label>
         <select id="idCliente" name="idCliente" required>
+            
             <option value="">Seleccione un cliente</option>
             <option th:each="cliente : ${clientes}"
                     th:value="${cliente.id_cliente}"
