@@ -14,21 +14,26 @@ public class repuestoDao implements CrudDao<repuesto, Integer> {
 
     @Override
     public boolean insertar(repuesto objeto) {
-        String sql = "INSERT INTO repuesto(id_repuesto, nombre, descripcion, precio, existencia, minimo_en_stock) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO repuesto(nombre, descripcion, precio, existencia, minimo_en_stock) VALUES (?, ?, ?, ?, ?)";
 
         if (!valoresValidos(objeto)) {
             return false;
         }
         try (Connection con = conexion_db.conectar();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, objeto.getId_repuesto());
-            ps.setString(2, objeto.getNombre());
-            ps.setString(3, objeto.getDescripcion());
-            ps.setBigDecimal(4, objeto.getPrecio());
-            ps.setInt(5, objeto.getExistencia());
-            ps.setInt(6, objeto.getMinimo_en_stock());
-
-            return ps.executeUpdate() > 0;
+             PreparedStatement ps = con.prepareStatement(sql, new String[]{"id_repuesto"})) {
+            ps.setString(1, objeto.getNombre());
+            ps.setString(2, objeto.getDescripcion());
+            ps.setBigDecimal(3, objeto.getPrecio());
+            ps.setInt(4, objeto.getExistencia());
+            ps.setInt(5, objeto.getMinimo_en_stock());
+            ps.executeUpdate();
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (!keys.next()) {
+                    return false;
+                }
+                objeto.setId_repuesto(keys.getInt(1));
+                return true;
+            }
         } catch (SQLException e) {
             System.err.println("Error al insertar el repuesto");
             e.printStackTrace();
@@ -162,6 +167,8 @@ public class repuestoDao implements CrudDao<repuesto, Integer> {
 
     private boolean valoresValidos(repuesto objeto) {
         return objeto != null
+                && objeto.getDescripcion() != null
+                && !objeto.getDescripcion().isBlank()
                 && objeto.getPrecio() != null
                 && objeto.getPrecio().signum() >= 0
                 && objeto.getExistencia() >= 0

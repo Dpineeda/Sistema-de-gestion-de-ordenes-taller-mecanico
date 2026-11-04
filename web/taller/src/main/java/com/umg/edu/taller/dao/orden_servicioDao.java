@@ -20,7 +20,7 @@ public class orden_servicioDao implements CrudDao<orden_servicio, Integer> {
                 || objeto.getCosto() == null || objeto.getCosto().signum() < 0) {
             return false;
         }
-        String sql = "INSERT INTO orden_servicio(id_orden_servicio, id_orden, id_servicio, costo) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO orden_servicio(id_orden, id_servicio, costo) VALUES (?, ?, ?)";
 
         try (Connection con = conexion_db.conectar()) {
             con.setAutoCommit(false);
@@ -29,14 +29,23 @@ public class orden_servicioDao implements CrudDao<orden_servicio, Integer> {
                     con.rollback();
                     return false;
                 }
-                try (PreparedStatement ps = con.prepareStatement(sql)) {
-                    ps.setInt(1, objeto.getId_orden_servicio());
-                    ps.setInt(2, objeto.getOrden().getid_orden());
-                    ps.setInt(3, objeto.getServicio().getid_servicio());
-                    ps.setBigDecimal(4, objeto.getCosto());
-                    boolean insertado = ps.executeUpdate() > 0;
+                try (PreparedStatement ps = con.prepareStatement(sql, new String[]{"id_orden_servicio"})) {
+                    ps.setInt(1, objeto.getOrden().getid_orden());
+                    ps.setInt(2, objeto.getServicio().getid_servicio());
+                    ps.setBigDecimal(3, objeto.getCosto());
+                    if (ps.executeUpdate() == 0) {
+                        con.rollback();
+                        return false;
+                    }
+                    try (ResultSet keys = ps.getGeneratedKeys()) {
+                        if (!keys.next()) {
+                            con.rollback();
+                            return false;
+                        }
+                        objeto.setId_orden_servicio(keys.getInt(1));
+                    }
                     con.commit();
-                    return insertado;
+                    return true;
                 }
             } catch (SQLException e) {
                 con.rollback();

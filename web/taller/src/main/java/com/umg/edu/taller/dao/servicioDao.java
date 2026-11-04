@@ -18,15 +18,20 @@ public class servicioDao implements CrudDao<servicio, Integer> {
                 || objeto.getcosto_manodeobra() == null || objeto.getcosto_manodeobra().signum() < 0) {
             return false;
         }
-        String sql = "INSERT INTO servicio(id_servicio, descripcion, costo_manodeobra) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO servicio(descripcion, costo_manodeobra) VALUES (?, ?)";
 
         try (Connection con = conexion_db.conectar();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, objeto.getid_servicio());
-            ps.setString(2, objeto.getdescripcion());
-            ps.setBigDecimal(3, objeto.getcosto_manodeobra());
-
-            return ps.executeUpdate() > 0;
+             PreparedStatement ps = con.prepareStatement(sql, new String[]{"id_servicio"})) {
+            ps.setString(1, objeto.getdescripcion());
+            ps.setBigDecimal(2, objeto.getcosto_manodeobra());
+            ps.executeUpdate();
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (!keys.next()) {
+                    return false;
+                }
+                objeto.setid_servicio(keys.getInt(1));
+                return true;
+            }
         } catch (SQLException e) {
             System.err.println("Error al insertar el servicio");
             e.printStackTrace();

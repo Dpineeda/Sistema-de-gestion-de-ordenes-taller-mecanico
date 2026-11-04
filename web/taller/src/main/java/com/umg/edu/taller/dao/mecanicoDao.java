@@ -14,14 +14,19 @@ public class mecanicoDao implements CrudDao<mecanico, Integer> {
 
     @Override
     public boolean insertar(mecanico objeto) {
-        String sql = "INSERT INTO mecanico(id_mecanico, nombre, telefono) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO mecanico(nombre, telefono) VALUES (?, ?)";
         try (Connection con = conexion_db.conectar();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, objeto.getid_mecanico());
-            ps.setString(2, objeto.getnombre());
-            ps.setString(3, objeto.gettelefono());
-
-            return ps.executeUpdate() > 0;
+             PreparedStatement ps = con.prepareStatement(sql, new String[]{"id_mecanico"})) {
+            ps.setString(1, objeto.getnombre());
+            ps.setString(2, objeto.gettelefono());
+            ps.executeUpdate();
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (!keys.next()) {
+                    return false;
+                }
+                objeto.setid_mecanico(keys.getInt(1));
+                return true;
+            }
         } catch (SQLException e) {
             System.err.println("Error al insertar el mecánico");
             e.printStackTrace();

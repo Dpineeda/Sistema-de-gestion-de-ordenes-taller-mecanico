@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ordenDao implements CrudDao<orden, Integer> {
+    private static final String SELECT_ORDENES = "SELECT o.id_orden, o.id_vehiculo, o.id_mecanico, o.descripcion_problema, o.precio_total, o.estado, v.placa, m.nombre FROM orden o JOIN vehiculo v ON v.id_vehiculo = o.id_vehiculo JOIN mecanico m ON m.id_mecanico = o.id_mecanico";
 
     @Override
     public boolean insertar(orden objeto) {
@@ -24,23 +25,25 @@ public class ordenDao implements CrudDao<orden, Integer> {
                 || objeto.getdescripcion_problema().isBlank()) {
             return false;
         }
-        String sql = "INSERT INTO orden(id_orden, id_vehiculo, id_mecanico, descripcion_problema, precio_total, estado) "
-                + "VALUES (?, ?, ?, ?, 0, ?)";
+        String sql = "INSERT INTO orden(id_vehiculo, id_mecanico, descripcion_problema, precio_total, estado) "
+                + "VALUES (?, ?, ?, 0, ?)";
 
         try (Connection con = conexion_db.conectar();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, objeto.getid_orden());
-            ps.setInt(2, objeto.getvehiculo().getId_vehiculo());
-            ps.setInt(3, objeto.getmecanico().getid_mecanico());
-            ps.setString(4, objeto.getdescripcion_problema());
-            ps.setString(5, orden.PENDIENTE);
-
-            boolean insertada = ps.executeUpdate() > 0;
-            if (insertada) {
+             PreparedStatement ps = con.prepareStatement(sql, new String[]{"id_orden"})) {
+            ps.setInt(1, objeto.getvehiculo().getId_vehiculo());
+            ps.setInt(2, objeto.getmecanico().getid_mecanico());
+            ps.setString(3, objeto.getdescripcion_problema());
+            ps.setString(4, orden.PENDIENTE);
+            ps.executeUpdate();
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (!keys.next()) {
+                    return false;
+                }
+                objeto.setid_orden(keys.getInt(1));
                 objeto.setEstado(orden.PENDIENTE);
                 objeto.setprecio_total(BigDecimal.ZERO);
+                return true;
             }
-            return insertada;
         } catch (SQLException e) {
             System.err.println("Error al insertar la orden");
             e.printStackTrace();
@@ -76,9 +79,9 @@ public class ordenDao implements CrudDao<orden, Integer> {
     @Override
     public boolean eliminar(Integer id) {
         String sql = "DELETE FROM orden WHERE id_orden = ? AND estado = ? "
-                + "AND NOT EXISTS (SELECT 1 FROM orden_repuesto WHERE id_orden = ?) "
+                 + "AND NOT EXISTS (SELECT 1 FROM orden_repuesto WHERE id_orden = ?) "
                 + "AND NOT EXISTS (SELECT 1 FROM orden_servicio WHERE id_orden = ?) "
-                + "AND NOT EXISTS (SELECT 1 FROM comprobante WHERE id_orden = ?)";
+                 + "AND NOT EXISTS (SELECT 1 FROM comprobante WHERE id_orden = ?)";
 
         try (Connection con = conexion_db.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -97,7 +100,7 @@ public class ordenDao implements CrudDao<orden, Integer> {
 
     @Override
     public orden buscarporid(Integer id) {
-        String sql = "SELECT id_orden, id_vehiculo, id_mecanico, descripcion_problema, precio_total, estado FROM orden WHERE id_orden = ?";
+        String sql = SELECT_ORDENES + " WHERE o.id_orden = ?";
 
         try (Connection con = conexion_db.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -114,7 +117,7 @@ public class ordenDao implements CrudDao<orden, Integer> {
 
     @Override
     public List<orden> listartodos() {
-        String sql = "SELECT id_orden, id_vehiculo, id_mecanico, descripcion_problema, precio_total, estado FROM orden";
+        String sql = SELECT_ORDENES;
         List<orden> ordenes = new ArrayList<>();
 
         try (Connection con = conexion_db.conectar();
@@ -131,7 +134,7 @@ public class ordenDao implements CrudDao<orden, Integer> {
     }
 
     public List<orden> listarPorVehiculo(int idVehiculo) {
-        String sql = "SELECT id_orden, id_vehiculo, id_mecanico, descripcion_problema, precio_total, estado FROM orden WHERE id_vehiculo = ? ORDER BY id_orden DESC";
+        String sql = SELECT_ORDENES + " WHERE o.id_vehiculo = ? ORDER BY o.id_orden DESC";
         List<orden> ordenes = new ArrayList<>();
 
         try (Connection con = conexion_db.conectar();
@@ -154,7 +157,7 @@ public class ordenDao implements CrudDao<orden, Integer> {
                 && !orden.FINALIZADA.equals(estado) && !orden.CANCELADA.equals(estado)) {
             throw new IllegalArgumentException("Estado de orden no válido");
         }
-        String sql = "SELECT id_orden, id_vehiculo, id_mecanico, descripcion_problema, precio_total, estado FROM orden WHERE estado = ?";
+        String sql = SELECT_ORDENES + " WHERE o.estado = ?";
         List<orden> ordenes = new ArrayList<>();
         try (Connection con = conexion_db.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -172,7 +175,7 @@ public class ordenDao implements CrudDao<orden, Integer> {
     }
 
     public List<orden> listarPorMecanico(int idMecanico) {
-        String sql = "SELECT id_orden, id_vehiculo, id_mecanico, descripcion_problema, precio_total, estado FROM orden WHERE id_mecanico = ?";
+        String sql = SELECT_ORDENES + " WHERE o.id_mecanico = ?";
         List<orden> ordenes = new ArrayList<>();
         try (Connection con = conexion_db.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -193,8 +196,11 @@ public class ordenDao implements CrudDao<orden, Integer> {
         if (inicio == null || fin == null || !inicio.isBefore(fin)) {
             throw new IllegalArgumentException("El inicio debe ser anterior al fin del rango");
         }
-        String sql = "SELECT o.id_orden, o.id_vehiculo, o.id_mecanico, o.descripcion_problema, o.precio_total, o.estado "
+        String sql = "SELECT o.id_orden, o.id_vehiculo, o.id_mecanico, o.descripcion_problema, "
+                + "o.precio_total, o.estado, v.placa, m.nombre "
                 + "FROM orden o JOIN comprobante c ON c.id_orden = o.id_orden "
+                + "JOIN vehiculo v ON v.id_vehiculo = o.id_vehiculo "
+                + "JOIN mecanico m ON m.id_mecanico = o.id_mecanico "
                 + "WHERE c.fecha_emision >= ? AND c.fecha_emision < ?";
         List<orden> ordenes = new ArrayList<>();
         try (Connection con = conexion_db.conectar();
@@ -214,9 +220,7 @@ public class ordenDao implements CrudDao<orden, Integer> {
     }
 
     public List<orden> listarPorPlaca(String placa) {
-        String sql = "SELECT o.id_orden, o.id_vehiculo, o.id_mecanico, o.descripcion_problema, "
-                + "o.precio_total, o.estado FROM orden o JOIN vehiculo v ON v.id_vehiculo = o.id_vehiculo "
-                + "WHERE v.placa = ? ORDER BY o.id_orden DESC";
+        String sql = SELECT_ORDENES + " WHERE v.placa = ? ORDER BY o.id_orden DESC";
         List<orden> ordenes = new ArrayList<>();
         try (Connection con = conexion_db.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -395,9 +399,9 @@ public class ordenDao implements CrudDao<orden, Integer> {
 
     private orden mapearOrden(ResultSet rs) throws SQLException {
         vehiculo vehiculoOrden = new vehiculo(
-                rs.getInt("id_vehiculo"), null, null, null, null, null, null);
+                rs.getInt("id_vehiculo"), rs.getString("placa"), null, null, null, null, null);
         mecanico mecanicoOrden = new mecanico(
-                rs.getInt("id_mecanico"), null, null);
+                rs.getInt("id_mecanico"), rs.getString("nombre"), null);
         return new orden(
                 rs.getInt("id_orden"),
                 vehiculoOrden,

@@ -1,15 +1,11 @@
 package com.umg.edu.taller.modelo;
 
-public class mecanico {
+public class mecanico extends Persona {
     private int id_mecanico;
-    private String nombre;
-    private String telefono;
 
 public mecanico (int id_mecanico, String nombre, String telefono) {
-
+        super(nombre, telefono);
         this.id_mecanico = id_mecanico;
-        this.nombre = nombre;
-        this.telefono = telefono;
 }
 
 public int getid_mecanico() {
@@ -29,38 +25,18 @@ public void setId_mecanico(int id_mecanico) {
 }
 
 public String getnombre() {
-    return nombre;
-}
-
-public String getNombre() {
-    return nombre;
+    return getNombre();
 }
 
 public void setnombre(String nombre) {
-    this.nombre = nombre;
-}
-
-public void setNombre(String nombre) {
-    this.nombre = nombre;
+    setNombre(nombre);
 }
 
 public String gettelefono () {
-    return telefono;
-
-}
-
-public String getTelefono() {
-    return telefono;
+    return getTelefono();
 }
 
 public void settelefono (String telefono) {
-    this.telefono = telefono;
+    setTelefono(telefono);
 }
-
-public void setTelefono(String telefono) {
-    this.telefono = telefono;
-}
-
-
-
 }

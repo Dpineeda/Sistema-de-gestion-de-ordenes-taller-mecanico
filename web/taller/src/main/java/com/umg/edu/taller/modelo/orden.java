@@ -3,10 +3,10 @@ package com.umg.edu.taller.modelo;
 import java.math.BigDecimal;
 
 public class orden {
-    public static final String PENDIENTE = "PENDIENTE";
-    public static final String EN_PROCESO = "EN PROCESO";
-    public static final String FINALIZADA = "FINALIZADA";
-    public static final String CANCELADA = "CANCELADA";
+    public static final String PENDIENTE = "Pendite";
+    public static final String EN_PROCESO = "En proceso";
+    public static final String FINALIZADA = "Finaliza";
+    public static final String CANCELADA = "Cancelada";
 
     private int id_orden;
     private vehiculo vehiculo;

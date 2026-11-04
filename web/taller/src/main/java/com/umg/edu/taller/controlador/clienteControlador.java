@@ -4,8 +4,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.umg.edu.taller.dao.clienteDao;
 import com.umg.edu.taller.modelo.cliente;
+import com.umg.edu.taller.servicio.clienteServicio;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,37 +16,32 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller 
 @RequestMapping("/clientes")
 public class clienteControlador {
-    private final clienteDao clienteDao = new clienteDao();
+    private final clienteServicio clienteServicio = new clienteServicio();
 
     @GetMapping()
     public String listar(Model model) {
         model.addAttribute("cliente", new cliente("", "", "", ""));
-        model.addAttribute("clientes", clienteDao.listartodos());
+        model.addAttribute("clientes", clienteServicio.listarClientes());
         return "cliente";
     }
 
     @GetMapping("/editar/{id}")
     public String editar(@PathVariable String id, Model model, RedirectAttributes redirectAttributes) {
-        cliente cliente = clienteDao.buscarporid(id);
+        cliente cliente = clienteServicio.buscarCliente(id);
         if (cliente == null) {
             redirectAttributes.addFlashAttribute("error", "No se encontró el cliente con ese ID " + id);
             return "redirect:/clientes";
         }
 
         model.addAttribute("cliente", cliente);
-        model.addAttribute("clientes", clienteDao.listartodos());
+        model.addAttribute("clientes", clienteServicio.listarClientes());
         return "cliente";
     }
 
     @PostMapping("/guardar")
     public String guardar(@ModelAttribute cliente cliente, RedirectAttributes redirectAttributes) {
         try {
-            boolean guardado;
-            if (clienteDao.buscarporid(cliente.getid_cliente()) == null) {
-                guardado = clienteDao.insertar(cliente);
-            } else {
-                guardado = clienteDao.actualizar(cliente);
-            }
+            boolean guardado = clienteServicio.guardarCliente(cliente);
 
             if (guardado) {
                 redirectAttributes.addFlashAttribute("mensaje", "Cliente guardado correctamente");
@@ -63,7 +58,7 @@ public class clienteControlador {
 
     @PostMapping("/eliminar/{id}")
     public String eliminar(@PathVariable String id, RedirectAttributes redirectAttributes) {
-        if (clienteDao.eliminar(id)) {
+        if (clienteServicio.eliminarCliente(id)) {
             redirectAttributes.addFlashAttribute("mensaje", "Cliente eliminado correctamente");
         } else {
             redirectAttributes.addFlashAttribute("error",

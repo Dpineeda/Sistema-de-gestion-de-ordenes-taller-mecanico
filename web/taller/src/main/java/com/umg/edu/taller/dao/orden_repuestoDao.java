@@ -19,7 +19,7 @@ public class orden_repuestoDao implements CrudDao<orden_repuesto, Integer> {
         if (!datosValidos(objeto)) {
             return false;
         }
-        String sql = "INSERT INTO orden_repuesto(id_orden_repuesto, id_orden, id_repuesto, cantidad, precio_unidad) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO orden_repuesto(id_orden, id_repuesto, cantidad, precio_unidad) VALUES (?, ?, ?, ?)";
 
         try (Connection con = conexion_db.conectar()) {
             con.setAutoCommit(false);
@@ -30,16 +30,21 @@ public class orden_repuestoDao implements CrudDao<orden_repuesto, Integer> {
                     con.rollback();
                     return false;
                 }
-                try (PreparedStatement ps = con.prepareStatement(sql)) {
-                    ps.setInt(1, objeto.getId_orden_repuesto());
-                    ps.setInt(2, objeto.getOrden().getid_orden());
-                    ps.setInt(3, objeto.getRepuesto().getId_repuesto());
-                    ps.setInt(4, objeto.getCantidad());
-                    ps.setBigDecimal(5, objeto.getPrecio_unidad());
-                    boolean insertado = ps.executeUpdate() > 0;
-                    if (!insertado) {
+                try (PreparedStatement ps = con.prepareStatement(sql, new String[]{"id_orden_repuesto"})) {
+                    ps.setInt(1, objeto.getOrden().getid_orden());
+                    ps.setInt(2, objeto.getRepuesto().getId_repuesto());
+                    ps.setInt(3, objeto.getCantidad());
+                    ps.setBigDecimal(4, objeto.getPrecio_unidad());
+                    if (ps.executeUpdate() == 0) {
                         con.rollback();
                         return false;
+                    }
+                    try (ResultSet keys = ps.getGeneratedKeys()) {
+                        if (!keys.next()) {
+                            con.rollback();
+                            return false;
+                        }
+                        objeto.setId_orden_repuesto(keys.getInt(1));
                     }
                 }
                 con.commit();

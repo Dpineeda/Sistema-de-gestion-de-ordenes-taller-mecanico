@@ -21,21 +21,26 @@ public class comprobanteDao implements CrudDao<comprobante, Integer> {
         if (objeto == null || objeto.getorden() == null || objeto.getFecha_emision() == null) {
             return false;
         }
-        String sql = "INSERT INTO comprobante (id_comprobante, id_orden, fecha_emision, total_repuesto, total) "
-                + "SELECT ?, o.id_orden, ?, "
+        String sql = "INSERT INTO comprobante (id_orden, fecha_emision, total_repuesto, total) "
+                + "SELECT o.id_orden, ?, "
                 + "COALESCE((SELECT SUM(orj.cantidad * orj.precio_unidad) FROM orden_repuesto orj "
                 + "WHERE orj.id_orden = o.id_orden), 0), o.precio_total "
                 + "FROM orden o WHERE o.id_orden = ? AND o.estado = ? "
                 + "AND NOT EXISTS (SELECT 1 FROM comprobante c WHERE c.id_orden = o.id_orden)";
 
         try (Connection con = conexion_db.conectar();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, objeto.getId_comprobante());
-            ps.setTimestamp(2, Timestamp.valueOf(objeto.getFecha_emision()));
-            ps.setInt(3, objeto.getorden().getid_orden());
-            ps.setString(4, com.umg.edu.taller.modelo.orden.FINALIZADA);
-
-            return ps.executeUpdate() > 0;
+             PreparedStatement ps = con.prepareStatement(sql, new String[]{"id_comprobante"})) {
+            ps.setTimestamp(1, Timestamp.valueOf(objeto.getFecha_emision()));
+            ps.setInt(2, objeto.getorden().getid_orden());
+            ps.setString(3, com.umg.edu.taller.modelo.orden.FINALIZADA);
+            ps.executeUpdate();
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (!keys.next()) {
+                    return false;
+                }
+                objeto.setId_comprobante(keys.getInt(1));
+                return true;
+            }
         } catch (SQLException e) {
             System.err.println("Error al insertar el comprobante");
             e.printStackTrace();

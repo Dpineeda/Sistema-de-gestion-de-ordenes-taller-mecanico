@@ -1,18 +1,16 @@
 package com.umg.edu.taller.modelo;
 
-public class cliente {
+public class cliente extends Persona {
 private String id_cliente;
-private String nombre;
-private String telefono;
 private String correo;
 
 public cliente() {
+    super(null, null);
 }
 
 public cliente(String id_cliente, String nombre, String telefono, String correo) {
+    super(nombre, telefono);
     this.id_cliente = id_cliente;
-    this.nombre = nombre;
-    this.telefono = telefono;
     this.correo = correo;
 }
 
@@ -22,22 +20,6 @@ public String getId_cliente() {
 
 public void setId_cliente(String id_cliente) {
     this.id_cliente = id_cliente;
-}
-
-public String getNombre() {
-    return nombre;
-}
-
-public void setNombre(String nombre) {
-    this.nombre = nombre;
-}
-
-public String getTelefono() {
-    return telefono;
-}
-
-public void setTelefono(String telefono) {
-    this.telefono = telefono;
 }
 
 public String getCorreo() {
@@ -57,19 +39,19 @@ public void setid_cliente(String id_cliente) {
 }
 
 public String getnombre () {
-    return nombre;
+    return getNombre();
 }
 
 public void setnombre(String nombre) {
-    this.nombre = nombre;
+    setNombre(nombre);
 }
 
 public String gettelefono () {
-    return  telefono;
+    return getTelefono();
 }
 
 public void settelefono (String telefono) {
-    this.telefono = telefono;
+    setTelefono(telefono);
 }
 
 public String getcorreo () {

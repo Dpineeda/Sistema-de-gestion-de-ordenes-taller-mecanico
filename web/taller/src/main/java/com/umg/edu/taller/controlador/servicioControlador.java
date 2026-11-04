@@ -1,7 +1,7 @@
 package com.umg.edu.taller.controlador;
 
-import com.umg.edu.taller.dao.servicioDao;
 import com.umg.edu.taller.modelo.servicio;
+import com.umg.edu.taller.servicio.servicioServicio;
 import java.math.BigDecimal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,23 +15,23 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/servicios")
 public class servicioControlador {
-    private final servicioDao servicioDao = new servicioDao();
+    private final servicioServicio servicioServicio = new servicioServicio();
 
     @GetMapping()
     public String listar(Model model) {
-        model.addAttribute("servicios", servicioDao.listartodos());
+        model.addAttribute("servicios", servicioServicio.listarServicios());
         return "servicio";
     }
 
     @GetMapping("/editar/{id}")
     public String editar(@PathVariable Integer id, Model model, RedirectAttributes redirectAttributes) {
-        servicio servicio = servicioDao.buscarporid(id);
+        servicio servicio = servicioServicio.buscarServicio(id);
         if (servicio == null) {
             redirectAttributes.addFlashAttribute("error", "No se encontró el servicio con ID " + id);
             return "redirect:/servicios";
         }
         model.addAttribute("servicio", servicio);
-        model.addAttribute("servicios", servicioDao.listartodos());
+        model.addAttribute("servicios", servicioServicio.listarServicios());
         return "servicio";
     }
 
@@ -42,9 +42,7 @@ public class servicioControlador {
                           RedirectAttributes redirectAttributes) {
         servicio servicio = new servicio(idServicio, descripcion, costoManoObra);
         try {
-            boolean guardado = servicioDao.buscarporid(idServicio) == null
-                    ? servicioDao.insertar(servicio)
-                    : servicioDao.actualizar(servicio);
+            boolean guardado = servicioServicio.guardarServicio(servicio);
             redirectAttributes.addFlashAttribute(guardado ? "mensaje" : "error",
                     guardado ? "Servicio guardado correctamente"
                             : "No fue posible guardar el servicio; verifique que el costo no sea negativo");
@@ -58,7 +56,7 @@ public class servicioControlador {
 
     @PostMapping("/eliminar/{id}")
     public String eliminar(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
-        boolean eliminado = servicioDao.eliminar(id);
+        boolean eliminado = servicioServicio.eliminarServicio(id);
         redirectAttributes.addFlashAttribute(eliminado ? "mensaje" : "error",
                 eliminado ? "Servicio eliminado correctamente"
                         : "No fue posible eliminar el servicio; verifique si está asignado a una orden");

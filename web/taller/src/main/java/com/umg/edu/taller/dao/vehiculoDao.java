@@ -8,7 +8,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,32 +16,33 @@ public class vehiculoDao implements CrudDao<vehiculo, Integer> {
     @Override
     public boolean insertar(vehiculo objeto) {
         if (objeto == null || objeto.getCliente() == null || objeto.getPlaca() == null
-                || objeto.getPlaca().isBlank()) {
+                || objeto.getPlaca().isBlank() || objeto.getAnio() == null) {
             return false;
         }
-        String sql = "INSERT INTO vehiculo(id_vehiculo, placa, marca, modelo, anio, color, id_cliente) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO vehiculo(placa, marca, modelo, anio, color, id_cliente) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection con = conexion_db.conectar();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+             PreparedStatement ps = con.prepareStatement(sql, new String[]{"id_vehiculo"})) {
             if (objeto.getCliente() == null
                     || objeto.getCliente().getid_cliente() == null
                     || placaExiste(con, objeto.getPlaca(), null)
                     || !clienteExiste(con, objeto.getCliente().getid_cliente())) {
                 return false;
             }
-                ps.setInt(1, objeto.getId_vehiculo());
-                ps.setString(2, objeto.getPlaca());
-                ps.setString(3, objeto.getMarca());
-                 ps.setString(4, objeto.getModelo());
-            if (objeto.getAnio() == null) {
-                     ps.setNull(5, Types.SMALLINT);
-            } else {
-                          ps.setShort(5, objeto.getAnio());
+            ps.setString(1, objeto.getPlaca());
+            ps.setString(2, objeto.getMarca());
+            ps.setString(3, objeto.getModelo());
+            ps.setShort(4, objeto.getAnio());
+            ps.setString(5, objeto.getColor());
+            ps.setString(6, objeto.getCliente().getid_cliente());
+            ps.executeUpdate();
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (!keys.next()) {
+                    return false;
+                }
+                objeto.setId_vehiculo(keys.getInt(1));
+                return true;
             }
-                ps.setString(6, objeto.getColor());
-                ps.setString(7, objeto.getCliente().getid_cliente());
-
-            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             System.err.println("Error al insertar el vehículo");
             e.printStackTrace();
@@ -53,7 +53,7 @@ public class vehiculoDao implements CrudDao<vehiculo, Integer> {
     @Override
     public boolean actualizar(vehiculo objeto) {
         if (objeto == null || objeto.getCliente() == null || objeto.getPlaca() == null
-                || objeto.getPlaca().isBlank()) {
+                || objeto.getPlaca().isBlank() || objeto.getAnio() == null) {
             return false;
         }
         String sql = "UPDATE vehiculo SET placa = ?, marca = ?, modelo = ?, anio = ?, color = ?, id_cliente = ? WHERE id_vehiculo = ?";
@@ -70,11 +70,7 @@ public class vehiculoDao implements CrudDao<vehiculo, Integer> {
             ps.setString(1, objeto.getPlaca());
             ps.setString(2, objeto.getMarca());
             ps.setString(3, objeto.getModelo());
-            if (objeto.getAnio() == null) {
-                ps.setNull(4, Types.SMALLINT);
-            } else {
-                ps.setShort(4, objeto.getAnio());
-            }
+            ps.setShort(4, objeto.getAnio());
             ps.setString(5, objeto.getColor());
             ps.setString(6, objeto.getCliente().getid_cliente());
             ps.setInt(7, objeto.getId_vehiculo());
