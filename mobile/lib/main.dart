@@ -44,6 +44,7 @@ class ReporteOrdenes extends StatefulWidget {
 
 class _ReporteOrdenesState extends State<ReporteOrdenes> {
   String filtro = 'TODAS';
+  String busqueda = '';
 
   final List<Orden> ordenes = [
     const Orden(101, 'P-123ABC', 'Ana López', 'Carlos Pérez',
@@ -69,9 +70,20 @@ class _ReporteOrdenesState extends State<ReporteOrdenes> {
 
   @override
   Widget build(BuildContext context) {
-    final visibles = filtro == 'TODAS'
-        ? ordenes
-        : ordenes.where((orden) => orden.estado == filtro).toList();
+    
+final visibles = ordenes.where((orden) {
+  final coincideEstado =
+      filtro == 'TODAS' || orden.estado == filtro;
+
+  final texto = busqueda.trim().toLowerCase();
+
+  final coincideBusqueda =
+      orden.placa.toLowerCase().contains(texto) ||
+      orden.cliente.toLowerCase().contains(texto) ||
+      orden.mecanico.toLowerCase().contains(texto);
+
+  return coincideEstado && coincideBusqueda;
+}).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -119,7 +131,25 @@ class _ReporteOrdenesState extends State<ReporteOrdenes> {
                 .toList(),
           ),
           const SizedBox(height: 16),
-          Text('${visibles.length} órdenes encontradas'),
+          
+TextField(
+  decoration: InputDecoration(
+    labelText: 'Buscar por placa, cliente o mecánico',
+    prefixIcon: const Icon(Icons.search),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    filled: true,
+    fillColor: Colors.white,
+  ),
+  onChanged: (valor) {
+    setState(() {
+      busqueda = valor;
+    });
+  },
+),
+const SizedBox(height: 12),
+
           const SizedBox(height: 8),
           if (visibles.isEmpty)
             const Card(
