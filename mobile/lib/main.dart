@@ -1,6 +1,9 @@
 
 import 'package:flutter/material.dart';
 
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
 void main() {
   runApp(const TallerApp());
 }
@@ -46,16 +49,57 @@ class _ReporteOrdenesState extends State<ReporteOrdenes> {
   String filtro = 'TODAS';
   String busqueda = '';
 
-  final List<Orden> ordenes = [
-    const Orden(101, 'P-123ABC', 'Ana López', 'Carlos Pérez',
-        'Cambio de aceite y filtros', 'PENDIENTE'),
-    const Orden(102, 'P-456DEF', 'José Ramírez', 'María García',
-        'Revisión de frenos', 'EN PROCESO'),
-    const Orden(103, 'P-789GHI', 'Luisa Morales', 'Carlos Pérez',
-        'Alineación y balanceo', 'FINALIZADA'),
-    const Orden(104, 'P-321JKL', 'Pedro Castillo', 'María García',
-        'Diagnóstico de motor', 'PENDIENTE'),
-  ];
+  
+List<Orden> ordenes = [];
+bool cargando = false;
+String? error;
+
+Future<void> cargarOrdenes() async {
+  setState(() {
+    cargando = true;
+    error = null;
+  });
+
+  try {
+    final respuesta = await http.get(
+      Uri.parse('http://localhost:8080/api/ordenes'),
+    );
+
+    if (respuesta.statusCode != 200) {
+      throw Exception('Error HTTP ${respuesta.statusCode}');
+    }
+
+    final datos = jsonDecode(
+      utf8.decode(respuesta.bodyBytes),
+    ) as List<dynamic>;
+
+    final lista = datos.map((dato) {
+      return Orden(
+        (dato['numero'] as num).toInt(),
+        dato['placa'].toString(),
+        dato['cliente'].toString(),
+        dato['mecanico'].toString(),
+        dato['problema'].toString(),
+        dato['estado'].toString(),
+      );
+    }).toList();
+
+    if (!mounted) return;
+
+    setState(() {
+      ordenes = lista;
+      cargando = false;
+    });
+  } catch (e) {
+    if (!mounted) return;
+
+    setState(() {
+      error = 'Error al consultar las órdenes: $e';
+      cargando = false;
+    });
+  }
+}
+
 
   int contar(String estado) {
     return ordenes.where((orden) => orden.estado == estado).length;
@@ -99,8 +143,19 @@ final visibles = ordenes.where((orden) {
           const SizedBox(height: 6),
           const Text('Consulta las reparaciones del taller.'),
           const SizedBox(height: 10),
-          const Text('DATOS DE PRUEBA - Sin conexión a MySQL todavía',
-              style: TextStyle(color: Color(0xFF9B5D15), fontSize: 12)),
+          
+ElevatedButton.icon(
+  onPressed: cargando ? null : cargarOrdenes,
+  icon: const Icon(Icons.refresh),
+  label: const Text('Consultar órdenes de MySQL'),
+),
+if (cargando) const LinearProgressIndicator(),
+if (error != null)
+  Text(
+    error!,
+    style: const TextStyle(color: Colors.red),
+  ),
+
           const SizedBox(height: 22),
           Wrap(
             spacing: 10,
