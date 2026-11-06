@@ -43,7 +43,7 @@ public class repuestoDao implements CrudDao<repuesto, Integer> {
 
     @Override
     public boolean actualizar(repuesto objeto) {
-        String sql = "UPDATE repuesto SET nombre = ?, descripcion = ?, precio = ?, minimo_en_stock = ? WHERE id_repuesto = ?";
+        String sql = "UPDATE repuesto SET nombre = ?, descripcion = ?, precio = ?, existencia = ?, minimo_en_stock = ? WHERE id_repuesto = ?";
 
         if (!valoresValidos(objeto)) {
             return false;
@@ -53,8 +53,9 @@ public class repuestoDao implements CrudDao<repuesto, Integer> {
             ps.setString(1, objeto.getNombre());
             ps.setString(2, objeto.getDescripcion());
             ps.setBigDecimal(3, objeto.getPrecio());
-            ps.setInt(4, objeto.getMinimo_en_stock());
-            ps.setInt(5, objeto.getId_repuesto());
+            ps.setInt(4, objeto.getExistencia());
+            ps.setInt(5, objeto.getMinimo_en_stock());
+            ps.setInt(6, objeto.getId_repuesto());
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
