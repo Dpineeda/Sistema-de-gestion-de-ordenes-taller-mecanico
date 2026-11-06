@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ordenDao implements CrudDao<orden, Integer> {
+    private static final String ESTADO_PENDIENTE = "PENDIENTE";
     private static final String SELECT_ORDENES = "SELECT o.id_orden, o.id_vehiculo, o.id_mecanico, o.descripcion_problema, o.precio_total, o.estado, v.placa, m.nombre FROM orden o JOIN vehiculo v ON v.id_vehiculo = o.id_vehiculo JOIN mecanico m ON m.id_mecanico = o.id_mecanico";
 
     @Override
@@ -33,14 +34,14 @@ public class ordenDao implements CrudDao<orden, Integer> {
             ps.setInt(1, objeto.getvehiculo().getId_vehiculo());
             ps.setInt(2, objeto.getmecanico().getid_mecanico());
             ps.setString(3, objeto.getdescripcion_problema());
-            ps.setString(4, orden.PENDIENTE);
+            ps.setString(4, ESTADO_PENDIENTE);
             ps.executeUpdate();
             try (ResultSet keys = ps.getGeneratedKeys()) {
                 if (!keys.next()) {
                     return false;
                 }
                 objeto.setid_orden(keys.getInt(1));
-                objeto.setEstado(orden.PENDIENTE);
+                objeto.setEstado(ESTADO_PENDIENTE);
                 objeto.setprecio_total(BigDecimal.ZERO);
                 return true;
             }
@@ -66,7 +67,7 @@ public class ordenDao implements CrudDao<orden, Integer> {
             ps.setInt(2, objeto.getmecanico().getid_mecanico());
             ps.setString(3, objeto.getdescripcion_problema());
             ps.setInt(4, objeto.getid_orden());
-            ps.setString(5, orden.PENDIENTE);
+            ps.setString(5, ESTADO_PENDIENTE);
             ps.setString(6, orden.EN_PROCESO);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -86,7 +87,7 @@ public class ordenDao implements CrudDao<orden, Integer> {
         try (Connection con = conexion_db.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
-            ps.setString(2, orden.PENDIENTE);
+            ps.setString(2, ESTADO_PENDIENTE);
             ps.setInt(3, id);
             ps.setInt(4, id);
             ps.setInt(5, id);
@@ -153,7 +154,7 @@ public class ordenDao implements CrudDao<orden, Integer> {
     }
 
     public List<orden> listarPorEstado(String estado) {
-        if (!orden.PENDIENTE.equals(estado) && !orden.EN_PROCESO.equals(estado)
+        if (!ESTADO_PENDIENTE.equals(estado) && !orden.EN_PROCESO.equals(estado)
                 && !orden.FINALIZADA.equals(estado) && !orden.CANCELADA.equals(estado)) {
             throw new IllegalArgumentException("Estado de orden no válido");
         }
@@ -244,7 +245,7 @@ public class ordenDao implements CrudDao<orden, Integer> {
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, orden.EN_PROCESO);
             ps.setInt(2, id);
-            ps.setString(3, orden.PENDIENTE);
+            ps.setString(3, ESTADO_PENDIENTE);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             System.err.println("Error al iniciar la reparación");
@@ -344,7 +345,7 @@ public class ordenDao implements CrudDao<orden, Integer> {
                 try (PreparedStatement ps = con.prepareStatement(updateOrderSql)) {
                     ps.setString(1, orden.CANCELADA);
                     ps.setInt(2, id);
-                    ps.setString(3, orden.PENDIENTE);
+                    ps.setString(3, ESTADO_PENDIENTE);
                     ps.setString(4, orden.EN_PROCESO);
                     if (ps.executeUpdate() != 1) {
                         con.rollback();
@@ -383,7 +384,7 @@ public class ordenDao implements CrudDao<orden, Integer> {
                     return false;
                 }
                 String estado = rs.getString("estado");
-                return orden.PENDIENTE.equals(estado) || orden.EN_PROCESO.equals(estado);
+                return ESTADO_PENDIENTE.equals(estado) || orden.EN_PROCESO.equals(estado);
             }
         }
     }

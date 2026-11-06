@@ -18,7 +18,15 @@ public class servicio {
 
     }
 
+    public int getId_servicio() {
+        return id_servicio;
+    }
+
     public void setid_servicio (int id_servicio) {
+        this.id_servicio = id_servicio;
+    }
+
+    public void setId_servicio(int id_servicio) {
         this.id_servicio = id_servicio;
     }
 
@@ -27,7 +35,15 @@ public class servicio {
 
     }
 
+    public String getDescripcion() {
+        return descripcion;
+    }
+
     public void setdescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
 
@@ -36,7 +52,15 @@ public class servicio {
 
     }
 
+    public BigDecimal getCosto_manodeobra() {
+        return costo_manodeobra;
+    }
+
     public void setcosto_manodeobra(BigDecimal costo_manodeobra) {
+        this.costo_manodeobra = costo_manodeobra;
+    }
+
+    public void setCosto_manodeobra(BigDecimal costo_manodeobra) {
         this.costo_manodeobra = costo_manodeobra;
     }
 

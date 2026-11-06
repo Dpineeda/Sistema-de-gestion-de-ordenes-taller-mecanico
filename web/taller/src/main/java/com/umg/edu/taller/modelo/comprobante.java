@@ -38,7 +38,15 @@ public class comprobante {
         return orden;
     }
 
+    public orden getOrden() {
+        return orden;
+    }
+
     public void setorden(orden orden) {
+        this.orden = orden;
+    }
+
+    public void setOrden(orden orden) {
         this.orden = orden;
     }
 
