@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style>
+        body {
+            min-height: 100vh;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.82)),
+                url("https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=1920&q=80");
+            background-position: center;
+            background-size: cover;
+            background-attachment: fixed;
+        }
+    </style>
+    <title>Gestión de órdenes</title>
+</head>
+<body>
+    <h1>Registro de órdenes</h1>
+    <p><a class="btn btn-light" th:href="@{/ordenes/reporte}">Consultar reportes de órdenes</a></p>
+
+    <p th:if="${mensaje}" th:text="${mensaje}" role="status"></p>
+    <p th:if="${error}" th:text="${error}" role="alert"></p>
+
+    <form th:action="@{/ordenes/guardar}" method="post">
+        <input type="hidden" name="idOrden" th:value="${orden != null ? orden.id_orden : 0}">
+
+        <label for="idVehiculo">Vehículo</label>
+        <select id="idVehiculo" name="idVehiculo" class="form-control" required>
+            <option value="">Seleccione un vehículo</option>
+            <option th:each="vehiculo : ${vehiculos}"
+                    th:value="${vehiculo.id_vehiculo}"
+                    th:text="${vehiculo.placa + ' - ' + vehiculo.marca + ' ' + vehiculo.modelo}"
+                    th:selected="${orden != null and orden.vehiculo != null and orden.vehiculo.id_vehiculo == vehiculo.id_vehiculo}">
+            </option>
+        </select>
+
+        <label for="idMecanico">Mecánico</label>
+        <select id="idMecanico" name="idMecanico" class="form-control" required>
+            <option value="">Seleccione un mecánico</option>
+            <option th:each="mecanico : ${mecanicos}"
+                    th:value="${mecanico.id_mecanico}"
+                    th:text="${mecanico.nombre}"
+                    th:selected="${orden != null and orden.mecanico != null and orden.mecanico.id_mecanico == mecanico.id_mecanico}">
+            </option>
+        </select>
+
+        <label for="descripcionProblema">Descripción del problema</label>
+        <textarea id="descripcionProblema" name="descripcionProblema" class="form-control" required th:text="${orden != null ? orden.descripcion_problema : ''}"></textarea>
+
+        <button class="btn btn-success" type="submit">Guardar</button>
+    </form>
+
+    <h2>Órdenes registradas</h2>
+    <table class="table table-bordered-dark">
+        <thead>
+            <tr>
+                <th>ID de la orden</th>
+                <th>Vehículo</th>
+                <th>Mecánico</th>
+                <th>Problema</th>
+                <th>Estado</th>
+                <th>Asignaciones</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="orden : ${ordenes}">
+                <td th:text="${orden.id_orden}"></td>
+                <td th:text="${orden.vehiculo != null ? orden.vehiculo.placa : ''}"></td>
+                <td th:text="${orden.mecanico != null ? orden.mecanico.nombre : ''}"></td>
+                <td th:text="${orden.descripcion_problema}"></td>
+                <td th:text="${orden.estado}"></td>
+                <td>
+                    <a class="btn btn-light" th:href="@{/orden-servicios/orden/{idOrden}(idOrden=${orden.id_orden})}">Servicios</a>
+                    <a class="btn btn-light" th:href="@{/orden-repuestos/orden/{idOrden}(idOrden=${orden.id_orden})}">Repuestos</a>
+                </td>
+                <td>
+                    <a class="btn btn-light" th:href="@{/ordenes/editar/{id}(id=${orden.id_orden})}">Editar</a>
+                    <form th:action="@{/ordenes/iniciar/{id}(id=${orden.id_orden})}" method="post">
+                        <button class="btn btn-success" type="submit">Iniciar</button>
+                    </form>
+                    <form th:action="@{/ordenes/finalizar/{id}(id=${orden.id_orden})}" method="post">
+                        <button class="btn btn-success" type="submit">Finalizar</button>
+                    </form>
+                    <form th:action="@{/ordenes/cancelar/{id}(id=${orden.id_orden})}" method="post">
+                        <button class="btn btn-success" type="submit">Cancelar</button>
+                    </form>
+                    <form th:action="@{/ordenes/eliminar/{id}(id=${orden.id_orden})}" method="post">
+                        <button class="btn btn-danger" type="submit">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(ordenes)}">
+                <td colspan="7">No hay órdenes registradas.</td>
+            </tr>
+        </tbody>
+    </table>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style>
+        body {
+            min-height: 100vh;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.82)),
+                url("https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=1920&q=80");
+            background-position: center;
+            background-size: cover;
+            background-attachment: fixed;
+        }
+    </style>
+    <title>Gestión de servicios</title>
+</head>
+<body>
+    <h1>Registro de servicios</h1>
+
+    <p th:if="${mensaje}" th:text="${mensaje}" role="status"></p>
+    <p th:if="${error}" th:text="${error}" role="alert"></p>
+
+    <form th:action="@{/servicios/guardar}" method="post">
+        <input type="hidden" name="idServicio" th:value="${servicio != null ? servicio.id_servicio : 0}">
+
+        <label for="descripcion">Descripción</label>
+        <input id="descripcion" name="descripcion" type="text" class="form-control" th:value="${servicio != null ? servicio.descripcion : ''}" required>
+
+        <label for="costoManoObra">Costo de mano de obra</label>
+        <input id="costoManoObra" name="costoManoObra" type="number" class="form-control" step="0.01" min="0" th:value="${servicio != null ? servicio.costo_manodeobra : ''}" required>
+
+        <button class="btn btn-success" type="submit">Guardar</button>
+    </form>
+
+    <h2>Servicios registrados</h2>
+    <table class="table table-bordered-dark">
+        <thead>
+            <tr>
+                <th>ID del servicio</th>
+                <th>Descripción</th>
+                <th>Costo de mano de obra</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="servicio : ${servicios}">
+                <td th:text="${servicio.id_servicio}"></td>
+                <td th:text="${servicio.descripcion}"></td>
+                <td th:text="${servicio.costo_manodeobra}"></td>
+                <td>
+                    <a class="btn btn-light" th:href="@{/servicios/editar/{id}(id=${servicio.id_servicio})}">Editar</a>
+                    <form th:action="@{/servicios/eliminar/{id}(id=${servicio.id_servicio})}" method="post">
+                        <button class="btn btn-danger" type="submit">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(servicios)}">
+                <td colspan="4">No hay servicios registrados.</td>
+            </tr>
+        </tbody>
+    </table>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</body>
+</html>
